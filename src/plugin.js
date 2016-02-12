@@ -23,7 +23,7 @@ export function loadPlugins (types, givenPlugins) {
         plugin = [plugin, {}]
       }
 
-      const [init, option] = plugin
+      const [init, option = {}] = plugin
 
       if (typeof init !== 'function') {
         throw new Error(`RefineryJS - Plugin ${id} is not a function`)
@@ -47,6 +47,6 @@ export function loadPlugins (types, givenPlugins) {
 
   return {
     visitors: IMap(mapVisitors).sort(prioritySorter),
-    state: MKMap(['id', 'topic'], state)
+    state: MKMap(['id', 'topic'], state),
   }
 }

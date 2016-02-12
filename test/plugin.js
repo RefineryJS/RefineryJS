@@ -5,31 +5,27 @@ import * as types from 'babel-types'
 
 import {loadPlugins} from '../src/plugin.js'
 
-describe('loadPlugins()', function () {
+describe('loadPlugins()', () => {
   const visitor1 = {foo () {}}
   const visitor2 = {bar () {}}
 
-  const someState1 = {
-    foo: 'bar'
-  }
-  const someState2 = {
-    foo: 'baz'
-  }
+  const someState1 = {foo: 'bar'}
+  const someState2 = {foo: 'baz'}
 
   const plugins = {
     plugin1: () => ({
       priority: 1,
       visitor: visitor1,
-      someState: someState1
+      someState: someState1,
     }),
     plugin2: [() => ({
       priority: 2,
       visitor: visitor2,
-      someState: someState2
-    }), {key: 'value'}]
+      someState: someState2,
+    }), {key: 'value'}],
   }
 
-  it('should load plugin visitors sorted by priority', function () {
+  it('should load plugin visitors sorted by priority', () => {
     const {visitors} = loadPlugins(types, plugins)
     const listVisitors = [...visitors]
 
@@ -39,7 +35,7 @@ describe('loadPlugins()', function () {
     expect(listVisitors[1][1]).to.equal(visitor1)
   })
 
-  it('should load plugin states as MKMap', function () {
+  it('should load plugin states as MKMap', () => {
     const {state} = loadPlugins(types, plugins)
 
     expect(state.get({id: 'plugin1', topic: 'someState'})).to.equal(someState1)

@@ -18,7 +18,9 @@ function normalizeVisitor (visitor) {
           exit = null
         }
 
-        if (!enter && !exit) return
+        if (!enter && !exit) {
+          return
+        }
 
         visitorMap.set(type, {enter, exit})
       }
@@ -49,16 +51,16 @@ export function unifyVisitors (mapVisitors, state) {
   const mergeVisitors = listVisitors => path => {
     const initialNode = path.node
 
-    for (let {id, visitor} of listVisitors) {
-      const getState = topic => state.get({id, topic})
-      const mutateState = (topic, mutator) => {
-        for (let [id, oldState] of state.get({topic})) {
-          const newState = mutator(oldState)
-          state.set({id, topic}, newState)
-        }
+    const getState = id => topic => state.get({id, topic})
+    const mutateState = (topic, mutator) => {
+      for (let [id, oldState] of state.get({topic})) {
+        const newState = mutator(oldState)
+        state.set({id, topic}, newState)
       }
+    }
 
-      visitor(path, getState, mutateState)
+    for (let {id, visitor} of listVisitors) {
+      visitor(path, getState(id), mutateState)
 
       if (path.shouldStop) {
         // Do not call path.stop() in RefineryJS plugin

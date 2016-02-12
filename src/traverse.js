@@ -14,11 +14,15 @@ export function traverse (t, path, visitor) {
     for (let type of rootNodeHandlers) {
       const handler = visitor[type][handleTime]
 
-      if (typeof handler !== 'function') continue
+      if (typeof handler !== 'function') {
+        continue
+      }
 
       handler(path)
 
-      if (path.shouldSkip || node !== path.node) break
+      if (path.shouldSkip || node !== path.node) {
+        break
+      }
     }
   }
 
