@@ -1,6 +1,6 @@
 {
   "name": "refineryjs",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "Redefine JavaScript's semantic",
   "main": "bin/index.js",
   "scripts": {
@@ -39,6 +39,7 @@
     "mocha": "^2.4.5"
   },
   "dependencies": {
+    "babel-polyfill": "^6.5.0",
     "immutable": "^3.7.6",
     "mkmap": "^1.0.2"
   }
