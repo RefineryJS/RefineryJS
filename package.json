@@ -1,11 +1,11 @@
 {
   "name": "refineryjs",
-  "version": "0.2.1",
+  "version": "0.2.2",
   "description": "Redefine JavaScript's semantic",
   "main": "bin/index.js",
   "scripts": {
     "lint": "eslint src/** test/**",
-    "unit": "mocha test --compilers js:babel-register",
+    "unit": "mocha test --compilers js:babel-register,js:babel-polyfill",
     "test": "npm run lint && npm run unit",
     "build": "babel src --out-dir bin",
     "deploy": "npm run test && npm run build && npm publish"

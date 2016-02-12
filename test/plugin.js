@@ -3,7 +3,7 @@ import {expect} from 'chai'
 
 import * as types from 'babel-types'
 
-import {loadPlugins} from '../src/plugin.js'
+import {loadPlugins} from '../src/plugin'
 
 describe('loadPlugins()', () => {
   const visitor1 = {foo () {}}
