@@ -8,7 +8,7 @@
     "unit": "mocha test --compilers js:babel-register,js:babel-polyfill",
     "test": "npm run lint && npm run unit",
     "build": "babel src --out-dir bin",
-    "deploy": "npm run test && npm run build && npm publish"
+    "postversion": "git push origin master && npm run build && npm publish"
   },
   "repository": {
     "type": "git",
@@ -34,8 +34,8 @@
     "babel-register": "^6.5.1",
     "babel-types": "^6.5.1",
     "chai": "^3.5.0",
-    "eslint": "^1.10.3",
-    "eslint-config-refineryjs": "^0.1.4",
+    "eslint": "^2.0.0",
+    "eslint-config-refineryjs": "^0.2.0",
     "mocha": "^2.4.5"
   },
   "dependencies": {
