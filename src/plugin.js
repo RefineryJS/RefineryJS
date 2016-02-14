@@ -15,31 +15,68 @@ function prioritySorter ({[PRIORITY]: left}, {[PRIORITY]: right}) {
   return numOf(right) - numOf(left)
 }
 
-export function loadPlugins (types, givenPlugins) {
+export function loadPlugins (types, listPlugins) {
   const mapVisitors = new Map()
   const state = IMap().withMutations(mapInitialStates => {
-    for (let [id, plugin] of IMap(givenPlugins)) {
-      if (!Array.isArray(plugin)) {
-        plugin = [plugin, {}]
+    for (let plugin of listPlugins) {
+      if (typeof plugin === 'string') {
+        plugin = {
+          name: plugin,
+          init: require(plugin).default,
+          option: {},
+        }
+      } else if (Array.isArray(plugin)) {
+        const newPluginObj = {}
+        for (let elem of plugin) {
+          switch (typeof elem) {
+            case 'string':
+              newPluginObj.name = elem
+              break
+            case 'function':
+              newPluginObj.init = elem
+              break
+            case 'object':
+              newPluginObj.option = elem
+              break
+            default:
+          }
+        }
+
+        plugin = newPluginObj
       }
 
-      const [init, option = {}] = plugin
+      let {name, init, option} = plugin
+
+      if (typeof name !== 'string') {
+        // Name must be specified
+        throw new Error('RefineryJS - Nameless plugin is not allowed')
+      }
 
       if (typeof init !== 'function') {
-        throw new Error(`RefineryJS - Plugin ${id} is not a function`)
+        // If initializer exist but not a function
+        if (init != null) {
+          throw new Error(`RefineryJS - Detect non-function plugin`)
+        }
+
+        // Fallback if initializer function not specified
+        init = require(name).default
+      }
+
+      if (typeof option !== 'object') {
+        option = {}
       }
 
       const {priority, visitor, ...others} = init({types, option})
 
       if (visitor != null) {
         visitor[PRIORITY] = priority
-        mapVisitors.set(id, visitor)
+        mapVisitors.set(plugin, visitor)
       }
 
       const otherFields = IMap(others)
       if (otherFields.size > 0) {
         for (let [topic, initiaiState] of otherFields) {
-          mapInitialStates.set(IMap({id, topic}), initiaiState)
+          mapInitialStates.set(IMap({plugin, topic}), initiaiState)
         }
       }
     }
@@ -47,6 +84,6 @@ export function loadPlugins (types, givenPlugins) {
 
   return {
     visitors: IMap(mapVisitors).sort(prioritySorter),
-    state: MKMap(['id', 'topic'], state),
+    state: MKMap(['plugin', 'topic'], state),
   }
 }

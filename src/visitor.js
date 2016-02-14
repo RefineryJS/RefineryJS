@@ -30,7 +30,7 @@ function normalizeVisitor (visitor) {
 
 export function unifyVisitors (mapVisitors, state) {
   const typeToVisitors = new Map()
-  for (let [id, visitor] of mapVisitors.map(normalizeVisitor)) {
+  for (let [plugin, visitor] of mapVisitors.map(normalizeVisitor)) {
     for (let [type, {enter, exit}] of visitor) {
       let existingVisitors = typeToVisitors.get(type)
       if (!existingVisitors) {
@@ -40,10 +40,10 @@ export function unifyVisitors (mapVisitors, state) {
       const {listEnter, listExit} = existingVisitors
 
       if (enter) {
-        listEnter.push({id, visitor: enter})
+        listEnter.push({plugin, visitor: enter})
       }
       if (exit) {
-        listExit.push({id, visitor: exit})
+        listExit.push({plugin, visitor: exit})
       }
     }
   }
@@ -51,16 +51,16 @@ export function unifyVisitors (mapVisitors, state) {
   const mergeVisitors = listVisitors => path => {
     const initialNode = path.node
 
-    const getState = id => topic => state.get({id, topic})
+    const getState = plugin => topic => state.get({plugin, topic})
     const mutateState = (topic, mutator) => {
-      for (let [id, oldState] of state.get({topic})) {
+      for (let [plugin, oldState] of state.get({topic})) {
         const newState = mutator(oldState)
-        state.set({id, topic}, newState)
+        state = state.set({plugin, topic}, newState)
       }
     }
 
-    for (let {id, visitor} of listVisitors) {
-      visitor(path, getState(id), mutateState)
+    for (let {plugin, visitor} of listVisitors) {
+      visitor(path, getState(plugin), mutateState)
 
       if (path.shouldStop) {
         // Do not call path.stop() in RefineryJS plugin
@@ -82,12 +82,14 @@ export function unifyVisitors (mapVisitors, state) {
   const resultVisitor = {}
   for (let [type, {listEnter, listExit}] of typeToVisitors) {
     const visitorElem = {}
+
     if (listEnter.length) {
       visitorElem.enter = mergeVisitors(listEnter)
     }
     if (listExit.length) {
       visitorElem.exit = mergeVisitors(listExit)
     }
+
     resultVisitor[type] = visitorElem
   }
 
