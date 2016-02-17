@@ -1,8 +1,6 @@
 import {describe, it} from 'mocha'
 import {expect} from 'chai'
-import rewire from 'rewire'
-
-const {normalizeVisitor} = rewire('../src/visitor')
+import {normalizeVisitor} from '../src/visitor'
 
 describe('visitor.normalizeVisitor()', () => {
   it('should handle function', () => {
