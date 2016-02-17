@@ -35,7 +35,7 @@
     "babel-types": "^6.5.1",
     "chai": "^3.5.0",
     "eslint": "^1.10.3",
-    "eslint-config-refineryjs": "^0.1.4",
+    "eslint-config-refineryjs": "^0.1.5",
     "mocha": "^2.4.5"
   },
   "dependencies": {

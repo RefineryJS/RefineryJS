@@ -1,49 +1,67 @@
 import {Map as IMap} from 'immutable'
 
-function normalizeVisitor (visitor) {
-  return IMap().withMutations(visitorMap => {
-    for (let key of Object.keys(visitor)) {
-      const handler = visitor[key]
-      for (let type of key.split('|')) {
-        if (typeof handler === 'function') {
-          visitorMap.set(type, {enter: handler})
-          continue
-        }
+export function normalizeVisitor (visitor) {
+  const visitorMap = new Map()
 
-        let {enter, exit} = handler || {}
+  for (let key of Object.keys(visitor)) {
+    const handler = visitor[key]
+    for (let type of key.split('|')) {
+      let {enter, exit} = handler || {}
+
+      if (typeof handler === 'function') {
+        enter = handler
+        exit = null
+      } else {
         if (typeof enter !== 'function') {
           enter = null
         }
         if (typeof exit !== 'function') {
           exit = null
         }
+      }
 
-        if (!enter && !exit) {
-          return
-        }
+      if (!enter && !exit) {
+        break
+      }
 
+      let typeHandlers = visitorMap.get(type)
+      if (!typeHandlers) {
+        enter = enter ? [enter] : []
+        exit = exit ? [exit] : []
         visitorMap.set(type, {enter, exit})
+        break
+      }
+
+      if (enter) {
+        typeHandlers.enter.push(enter)
+      }
+      if (exit) {
+        typeHandlers.exit.push(exit)
       }
     }
-  })
+  }
+
+  return IMap(visitorMap)
 }
 
 export function unifyVisitors (mapVisitors, state) {
   const typeToVisitors = new Map()
   for (let [plugin, visitor] of mapVisitors.map(normalizeVisitor)) {
     for (let [type, {enter, exit}] of visitor) {
-      let existingVisitors = typeToVisitors.get(type)
-      if (!existingVisitors) {
-        existingVisitors = {listEnter: [], listExit: []}
-        typeToVisitors.set(type, existingVisitors)
+      let visitorsPair = typeToVisitors.get(type)
+      if (!visitorsPair) {
+        visitorsPair = {listEnter: [], listExit: []}
+        typeToVisitors.set(type, visitorsPair)
       }
-      const {listEnter, listExit} = existingVisitors
+      const {listEnter, listExit} = visitorsPair
 
-      if (enter) {
-        listEnter.push({plugin, visitor: enter})
+      if (enter && enter.length) {
+        const pluginEnter = enter.map(handler => ({plugin, handler}))
+        visitorsPair.listEnter = listEnter.concat(pluginEnter)
       }
-      if (exit) {
-        listExit.push({plugin, visitor: exit})
+      if (exit && exit.length) {
+        const pluginExit = exit.map(handler => ({plugin, handler}))
+        visitorsPair.listExit = listExit.concat(pluginExit)
       }
     }
   }
@@ -59,8 +77,8 @@ export function unifyVisitors (mapVisitors, state) {
       }
     }
 
-    for (let {plugin, visitor} of listVisitors) {
-      visitor(path, getState(plugin), mutateState)
+    for (let {plugin, handler} of listVisitors) {
+      handler(path, getState(plugin), mutateState)
 
       if (path.shouldStop) {
         // Do not call path.stop() in RefineryJS plugin
