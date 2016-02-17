@@ -37,7 +37,7 @@ describe('visitor.normalizeVisitor()', () => {
 
     const handlerFunc = input['nodeType1|nodeType2']
     expect(handlers1.enter[0]).to.equal(handlerFunc)
-    expect(handlers2.exit[0]).to.equal(handlerFunc)
+    expect(handlers2.enter[0]).to.equal(handlerFunc)
   })
 
   it('should handle visitor with both enter and exit', () => {
