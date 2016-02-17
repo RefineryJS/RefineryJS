@@ -9,7 +9,7 @@
     "test": "npm run lint && npm run unit",
     "build": "babel src --out-dir bin",
     "version": "npm run build",
-    "postversion": "git push origin master --tags"
+    "postversion": "git push origin master --tags && npm publish"
   },
   "repository": {
     "type": "git",
