@@ -1,13 +1,11 @@
 import {Map as IMap} from 'immutable'
 
 export function normalizeVisitor (visitor) {
-  console.log('VISITORIS:', Object.keys(visitor))
   const visitorMap = new Map()
 
   for (let key of Object.keys(visitor)) {
     const handler = visitor[key]
     for (let type of key.split('|')) {
-      console.log('TYPEIS:', type)
       let {enter, exit} = handler || {}
 
       if (typeof handler === 'function') {
