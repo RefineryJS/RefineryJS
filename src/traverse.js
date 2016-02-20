@@ -4,17 +4,19 @@ export function traverse (t, path, visitor) {
   const rootNodeHandlers = []
   for (let type of Object.keys(visitor)) {
     if (t[`is${type}`](node)) {
-      rootNodeHandlers.push(type)
+      const {enter, exit} = visitor[type]
+      rootNodeHandlers.push({enter, exit})
     }
   }
 
   function runHandlers (handleTime) {
     const node = path.node
 
-    for (let type of rootNodeHandlers) {
-      const handler = visitor[type][handleTime]
+    for (let handlerPair of rootNodeHandlers) {
+      const handler = handlerPair[handleTime]
 
       if (typeof handler !== 'function') {
+        console.log('WOOPS:', handler)
         continue
       }
 

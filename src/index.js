@@ -1,5 +1,3 @@
-import 'babel-polyfill'
-
 import {loadPlugins} from './plugin'
 import {unifyVisitors} from './visitor'
 import {traverse} from './traverse'

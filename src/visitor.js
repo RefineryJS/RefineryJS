@@ -1,5 +1,7 @@
 import {Map as IMap} from 'immutable'
 
+const _shouldSkip = Symbol('refjs_core_should_skip')
+
 export function normalizeVisitor (visitor) {
   const visitorMap = new Map()
 
@@ -24,7 +26,7 @@ export function normalizeVisitor (visitor) {
         break
       }
 
-      let typeHandlers = visitorMap.get(type)
+      const typeHandlers = visitorMap.get(type)
       if (!typeHandlers) {
         enter = enter ? [enter] : []
         exit = exit ? [exit] : []
@@ -68,6 +70,11 @@ export function unifyVisitors (mapVisitors, state) {
 
   const mergeVisitors = listVisitors => path => {
     const initialNode = path.node
+    if (initialNode[_shouldSkip]) {
+      // This node is marked as skipped
+      path.skip()
+      return
+    }
 
     const getState = plugin => topic => state.get({plugin, topic})
     const mutateState = (topic, mutator) => {
@@ -87,6 +94,7 @@ export function unifyVisitors (mapVisitors, state) {
 
       if (path.shouldSkip) {
         // Plugin visitor called path.skip()
+        path.node[_shouldSkip] = true
         return
       }
 
