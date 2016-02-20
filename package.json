@@ -1,6 +1,6 @@
 {
   "name": "refineryjs",
-  "version": "0.4.0",
+  "version": "0.4.1",
   "description": "Redefine JavaScript's semantic",
   "main": "bin/index.js",
   "scripts": {
